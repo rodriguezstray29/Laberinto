@@ -1,0 +1,39 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: Cachear dependencias globales de Buildozer (SDK/NDK)
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+
+      - name: Cachear build local de Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+
+      - name: Compilar APK con la imagen oficial de Buildozer
+        run: |
+          mkdir -p ~/.buildozer
+          docker run --rm \
+            -v "${{ github.workspace }}":/home/user/hostcwd \
+            -v ~/.buildozer:/home/user/.buildozer \
+            ghcr.io/kivy/buildozer:latest android debug
+
+      - name: Subir el APK generado como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laberinto-apk
+          path: bin/*.apk

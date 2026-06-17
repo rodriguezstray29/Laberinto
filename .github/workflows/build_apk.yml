@@ -2,38 +2,36 @@ name: Build APK
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
     steps:
-      - name: Clonar repositorio
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Cachear dependencias globales de Buildozer (SDK/NDK)
-        uses: actions/cache@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          path: ~/.buildozer
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+          python-python-version: '3.10'
 
-      - name: Cachear build local de Buildozer
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-
-      - name: Compilar APK con la imagen oficial de Buildozer
+      - name: Install dependencies
         run: |
-          mkdir -p ~/.buildozer
-          docker run --rm \
-            -v "${{ github.workspace }}":/home/user/hostcwd \
-            -v ~/.buildozer:/home/user/.buildozer \
-            ghcr.io/kivy/buildozer:latest android debug
+          sudo apt-get update
+          sudo apt-get install -y libsqlite3-dev gapc openjdk-17-jdk
+          pip install --upgrade pip
+          pip install buildozer cython virtualenv
 
-      - name: Subir el APK generado como artifact
+      - name: Build with Buildozer
+        run: |
+          buildozer android clean
+          buildozer android debug
+
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: laberinto-apk
-          path: bin/*.apk
+          path: .buildozer/android/platform/build-arm64-v8a_armeabi-v7a/dists/laberinto/build/outputs/apk/debug/

@@ -20,7 +20,7 @@ version = 1.0
 
 # (list) Requisitos. "pygame" hace que python-for-android use
 # automáticamente el bootstrap "pygame" (no se necesita Kivy).
-requirements = python3,cython,pygame==2.5.2
+requirements = python3==3.11,cython==3.2.5,pygame==2.5.2
 
 # (str) Orientación: landscape, portrait o all
 orientation = portrait

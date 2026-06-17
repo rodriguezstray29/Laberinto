@@ -20,10 +20,10 @@ version = 1.0
 
 # (list) Requisitos. "pygame" hace que python-for-android use
 # automáticamente el bootstrap "pygame" (no se necesita Kivy).
-requirements = python3,pygame
+requirements = python3,pygame==2.5.2
 
 # (str) Orientación: landscape, portrait o all
-orientation = landscape
+orientation = portrait
 
 # (bool) Pantalla completa
 fullscreen = 1
@@ -35,10 +35,10 @@ android.permissions =
 android.api = 34
 
 # (int) API mínima de Android soportada (21 = Android 5.0)
-android.minapi = 21
+android.minapi = 24
 
 # (str) Versión del NDK a usar
-android.ndk = 25b
+android.ndk = 26b
 
 # (list) Arquitecturas a compilar (cubre prácticamente todos los celulares actuales)
 android.archs = arm64-v8a, armeabi-v7a

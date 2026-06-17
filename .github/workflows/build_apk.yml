@@ -2,38 +2,38 @@ name: Build APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Clonar repositorio
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Cachear dependencias globales de Buildozer (SDK/NDK)
+        uses: actions/cache@v4
         with:
-          python-version: '3.10'
+          path: ~/.buildozer
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
 
-      - name: Install dependencies
+      - name: Cachear build local de Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+
+      - name: Compilar APK con la imagen oficial de Buildozer
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential ccache git libsqlite3-dev openjdk-17-jdk zlib1g-dev
-          pip install --upgrade pip
-          pip install buildozer cython virtualenv
+          mkdir -p ~/.buildozer
+          docker run --rm \
+            -v "${{ github.workspace }}":/home/user/hostcwd \
+            -v ~/.buildozer:/home/user/.buildozer \
+            ghcr.io/kivy/buildozer:latest android debug
 
-      - name: Build with Buildozer
-        run: |
-          export USE_CCACHE=0
-          # Quitamos el clean que causaba el FileNotFoundError
-          buildozer android debug
-
-      - name: Upload APK Artifact
+      - name: Subir el APK generado como artifact
         uses: actions/upload-artifact@v4
         with:
           name: laberinto-apk
-          # Ruta corregida y directa para encontrar los archivos .apk generados
           path: bin/*.apk

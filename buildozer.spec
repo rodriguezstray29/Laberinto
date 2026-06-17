@@ -38,7 +38,7 @@ android.api = 34
 android.minapi = 24
 
 # (str) Versión del NDK a usar
-android.ndk = 23b
+android.ndk = 25b
 
 # (list) Arquitecturas a compilar (cubre prácticamente todos los celulares actuales)
 android.archs = arm64-v8a, armeabi-v7a
